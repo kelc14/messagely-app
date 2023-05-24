@@ -22,6 +22,8 @@ router.post("/login", async (req, res, next) => {
       // create and return token
       let token = jwt.sign({ username }, SECRET_KEY);
       return res.json({ token });
+    } else {
+      throw new ExpressError("Invalid Username/Password");
     }
   } catch (e) {
     next(e);
@@ -39,9 +41,7 @@ router.post("/register", async (req, res, next) => {
   try {
     const { username, password, first_name, last_name, phone } = req.body;
 
-    await User.register(username, password, first_name, last_name, phone);
-    // update last login
-    User.updateLoginTimestamp(username);
+    await User.register({ username, password, first_name, last_name, phone });
 
     // return token
     let token = jwt.sign({ username }, SECRET_KEY);

@@ -19,11 +19,12 @@ class User {
    *    {username, password, first_name, last_name, phone}
    */
 
-  static async register(username, password, first_name, last_name, phone) {
+  static async register({ username, password, first_name, last_name, phone }) {
     if (!username || !password || !first_name || !last_name || !phone) {
       throw new ExpressError("Missing information.");
     }
-    const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
+    let hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
+
     const result = await db.query(
       `INSERT INTO users (
               username,
@@ -31,13 +32,13 @@ class User {
               first_name, 
               last_name, 
               phone,
-              join_at)
-            VALUES ($1, $2, $3, $4, $5, current_timestamp)
+              join_at, last_login_at)
+            VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
             RETURNING username, password, first_name, last_name, phone`,
       [username, hashedPassword, first_name, last_name, phone]
     );
 
-    return result;
+    return result.rows[0];
   }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
@@ -51,12 +52,7 @@ class User {
 
     if (!user) throw new ExpressError("Invalid Username/Password");
 
-    let result = await bcrypt.compare(password, user.password);
-
-    if (result === true) return true;
-    else {
-      throw new ExpressError("Invalid Username/Password");
-    }
+    return await bcrypt.compare(password, user.password);
   }
 
   /** Update last_login_at for user */
@@ -124,7 +120,9 @@ class User {
                 m.sent_at,
                 m.read_at
           FROM messages AS m
-            JOIN users AS t ON m.to_username = t.usernameWHERE m.from_username = $1
+            JOIN users AS t 
+            ON m.to_username = t.username 
+            WHERE m.from_username = $1
             `,
       [username]
     );
@@ -168,7 +166,8 @@ class User {
                 m.sent_at,
                 m.read_at
           FROM messages AS m
-            JOIN users AS t ON m.from_username = t.username
+            JOIN users AS t 
+            ON m.from_username = t.username
           WHERE m.to_username = $1
           `,
       [username]
@@ -179,7 +178,7 @@ class User {
     for (let i = 0; i < messages.length; i++) {
       let msgDetails = {
         id: messages[i].id,
-        to_user: {
+        from_user: {
           username: messages[i].from_username,
           first_name: messages[i].from_first_name,
           last_name: messages[i].from_last_name,
