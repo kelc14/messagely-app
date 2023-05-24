@@ -21,7 +21,7 @@ class User {
 
   static async register({ username, password, first_name, last_name, phone }) {
     if (!username || !password || !first_name || !last_name || !phone) {
-      throw new ExpressError("Missing information.");
+      throw new ExpressError("Missing information.", 400);
     }
     let hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
@@ -50,7 +50,7 @@ class User {
     );
     let user = results.rows[0];
 
-    if (!user) throw new ExpressError("Invalid Username/Password");
+    if (!user) throw new ExpressError("Invalid Username/Password", 400);
 
     return await bcrypt.compare(password, user.password);
   }
@@ -68,7 +68,7 @@ class User {
 
     let user = results.rows[0];
 
-    if (!user) throw new ExpressError("Invalid Username/Password");
+    if (!user) throw new ExpressError("Invalid Username/Password", 400);
     return;
   }
 
@@ -97,7 +97,7 @@ class User {
       [username]
     );
     let user = results.rows[0];
-    if (!user) throw new ExpressError("User not found.");
+    if (!user) throw new ExpressError("User not found.", 400);
     return user;
   }
 

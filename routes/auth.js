@@ -23,7 +23,7 @@ router.post("/login", async (req, res, next) => {
       let token = jwt.sign({ username }, SECRET_KEY);
       return res.json({ token });
     } else {
-      throw new ExpressError("Invalid Username/Password");
+      throw new ExpressError("Invalid Username/Password", 400);
     }
   } catch (e) {
     next(e);
