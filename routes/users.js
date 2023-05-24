@@ -1,10 +1,6 @@
 const express = require("express");
 const router = new express.Router();
 
-const jwt = require("jsonwebtoken");
-const ExpressError = require("../expressError");
-const { SECRET_KEY } = require("../config");
-
 const User = require("../models/user");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 

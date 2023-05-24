@@ -19,3 +19,13 @@ CREATE TABLE messages (
     sent_at timestamp with time zone NOT NULL,
     read_at timestamp with time zone
 );
+
+-- INSERT INTO users (username,password,first_name, last_name, phone, join_at)
+-- VALUES ('TestUser', 'password', 'Jane', 'Doe', '12345678'),
+--  ('TestUser2', 'password', 'Johnny', 'Walker', '123455678'),
+--  ('TestUser3', 'password', 'Purple', 'Rain', '12345678');
+
+INSERT INTO messages (from_username, to_username, body)
+VALUES ('TestUser', 'TestUser1', 'This is a test message.')
+ ('TestUser1', 'TestUser2', 'This is another test message.')
+ ('TestUser2', 'TestUser', 'This is a third test message.')
